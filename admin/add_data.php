@@ -34,7 +34,6 @@ if (isset($_POST['submit'])) {
     $Original_size = $_POST['Original_size'];
     $Stem_length = $_POST['Stem_length'];
     $Root_system = $_POST['Root_system'];
-
     $Germination_rate = $_POST['Germination_rate'];
     $Birth_rate_albino = $_POST['Birth_rate_albino'];
     $worm_damage_level = $_POST['worm_damage_level'];

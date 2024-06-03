@@ -3,8 +3,6 @@
 session_start();
 include "database/db.php";
 
-
-
 // Retrieve filter values
 $filterBreed1 = trim($_POST['filterBreed1']);
 $filterBreed2 = trim($_POST['filterBreed2']);
