@@ -23,11 +23,27 @@ if (isset($_POST['update'])) {
         }
 
         $target_dir = "uploads/";
+
+        // Ensure the uploads directory exists and is writable
+        if (!is_dir($target_dir)) {
+            if (!mkdir($target_dir, 0755, true)) {
+                echo "Failed to create directory.";
+                exit();
+            }
+        }
+
+        // Set the target file path
         $target_file = $target_dir . basename($images["name"]);
 
-        // Check file size and type (optional)
+        // Check file size (optional)
         if ($images["size"] > 5000000) {
             echo "Sorry, your file is too large.";
+            exit();
+        }
+
+        // Check if file already exists (optional)
+        if (file_exists($target_file)) {
+            echo "Sorry, file already exists.";
             exit();
         }
 
@@ -46,22 +62,26 @@ if (isset($_POST['update'])) {
 
     include_once "database/db.php";
 
-    // Update user information including the profile picture path
+    // Use prepared statements to prevent SQL injection
     $sql = "UPDATE users SET
-            first_name = '$first_name',
-            last_name = '$last_name',
-            username = '$username',
-            email = '$email',
-            phone_number = '$phone_number'
+            first_name = ?,
+            last_name = ?,
+            username = ?,
+            email = ?,
+            phone_number = ?
             $imageUpdateQuery
-            WHERE id = $userId";
+            WHERE id = ?";
 
-    if ($conn->query($sql) === TRUE) {
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sssssi", $first_name, $last_name, $username, $email, $phone_number, $userId);
+
+    if ($stmt->execute()) {
         $_SESSION['success_message'] = "Profile updated successfully.";
     } else {
-        $_SESSION['error_message'] = "Error updating user profile: " . $conn->error;
+        $_SESSION['error_message'] = "Error updating user profile: " . $stmt->error;
     }
 
+    $stmt->close();
     $conn->close();
     header("Location: profile.php?id=" . $userId);
     exit();
