@@ -24,33 +24,34 @@ if (isset($_POST['register'])) {
     }
 
     $uploadedFiles = [];
-    foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
-        $file_name = $_FILES['images']['name'][$key];
-        $file_tmp = $_FILES['images']['tmp_name'][$key];
-        $uploadPath = $uploadDir . $file_name;
+    if (isset($_FILES['images']) && is_array($_FILES['images']['tmp_name'])) {
+        foreach ($_FILES['images']['tmp_name'] as $key => $tmp_name) {
+            $file_name = $_FILES['images']['name'][$key];
+            $file_tmp = $_FILES['images']['tmp_name'][$key];
+            $uploadPath = $uploadDir . $file_name;
 
-        if (move_uploaded_file($file_tmp, $uploadPath)) {
-            $uploadedFiles[] = $uploadPath;
+            if (move_uploaded_file($file_tmp, $uploadPath)) {
+                $uploadedFiles[] = $uploadPath;
+            }
         }
     }
+
     // Insert user information and image paths into the database
     include_once "database/db.php";
 
     $imagePaths = implode(',', $uploadedFiles);
-    $sql = "INSERT INTO users (first_name, last_name, username, password, email, phone_number, images,type) 
-            VALUES ('$first_name', '$last_name', '$username', '$password', '$email', '$phone_number', '$imagePaths','$type')";
-    // $conn->query($sql);
-    if ($conn->query($sql) == true) {
-        // header("location :user.php");
-        echo "<script> 
-        // alert('Insert Successfull');
-        document.location.href= 'user.php'
-        </script>";
+    $sql = "INSERT INTO users (first_name, last_name, username, password, email, phone_number, images, type) 
+            VALUES ('$first_name', '$last_name', '$username', '$password', '$email', '$phone_number', '$imagePaths', '$type')";
+
+    if ($conn->query($sql) === true) {
+        $_SESSION['success_message'] = "បន្ថែមទិន្នន័យបានជោគជ័យ.";
+        header('Location: ' . $_SERVER['REQUEST_URI']);
+        exit();
+    } else {
+        echo "Error: " . $sql . "<br>" . $conn->error;
     }
 
     $conn->close();
-
-    echo "Registration successful!";
 }
 ?>
 <!DOCTYPE html>
@@ -64,8 +65,6 @@ if (isset($_POST['register'])) {
     include "include/head.php";
     include "include/foradmin.php";
     ?>
-
-
 </head>
 
 <body>
@@ -77,7 +76,19 @@ if (isset($_POST['register'])) {
     <br>
     <div class="wrappage ">
         <a class=" btn btn-primary p-6 " style="width: 100px;" href="user.php">ថយក្រោយ</a>
-        <h2 class="container">Register</h2>
+        <div>
+            <div class="float-start d-flex justify-content-center align-center">
+                <h2 class="container  ">Register</h2>
+            </div>
+            <?php if (isset($_SESSION['success_message'])) : ?>
+                <div style="width: 300px;" class="flaot-end alert alert-success alert-dismissible fade show float-right p-2   d-flex justify-content-center align-items-center" role="alert">
+                    <strong><?php echo $_SESSION['success_message']; ?></strong>
+                    <button style="top: -5px;" type="button" class="btn-close p-3 w-1" aria-label="Close" onclick="closeAlert(this)"></button>
+
+                </div>
+                <?php unset($_SESSION['success_message']); ?>
+            <?php endif; ?>
+        </div>
         <div id="add_user" class="container">
             <form id="form_add_user" class="container" action="" method="post" enctype="multipart/form-data">
                 <table id="table_add_user">
