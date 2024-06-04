@@ -10,8 +10,6 @@ if (!isset($_SESSION['username']) && !isset($_SESSION['user_id'])) {
 include_once "database/db.php";
 include "include/foradmin.php";
 
-
-
 if (isset($_POST['submit'])) {
     $breed1 = $_POST['breed1'];
     $breed2 = $_POST['breed2'];

@@ -9,7 +9,6 @@ if (isset($_POST['update'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
     $phone_number = $_POST['phone_number'];
-
     // Handle file upload
     $images = $_FILES['images'];
 
@@ -21,9 +20,7 @@ if (isset($_POST['update'])) {
             echo "File is not an image.";
             exit();
         }
-
         $target_dir = "uploads/";
-
         // Ensure the uploads directory exists and is writable
         if (!is_dir($target_dir)) {
             if (!mkdir($target_dir, 0755, true)) {
@@ -31,7 +28,6 @@ if (isset($_POST['update'])) {
                 exit();
             }
         }
-
         // Set the target file path
         $target_file = $target_dir . basename($images["name"]);
 
@@ -40,28 +36,23 @@ if (isset($_POST['update'])) {
             echo "Sorry, your file is too large.";
             exit();
         }
-
         // Check if file already exists (optional)
         if (file_exists($target_file)) {
             echo "Sorry, file already exists.";
             exit();
         }
-
         // Move uploaded file to the target directory
         if (!move_uploaded_file($images["tmp_name"], $target_file)) {
             echo "Sorry, there was an error uploading your file.";
             exit();
         }
-
         // Update the profile picture path only if a new image is uploaded
         $imageUpdateQuery = ", images = '$target_file'";
     } else {
         // If no file is uploaded, set the target file to empty
         $imageUpdateQuery = "";
     }
-
     include_once "database/db.php";
-
     // Use prepared statements to prevent SQL injection
     $sql = "UPDATE users SET
             first_name = ?,
@@ -80,7 +71,6 @@ if (isset($_POST['update'])) {
     } else {
         $_SESSION['error_message'] = "Error updating user profile: " . $stmt->error;
     }
-
     $stmt->close();
     $conn->close();
     header("Location: profile.php?id=" . $userId);
